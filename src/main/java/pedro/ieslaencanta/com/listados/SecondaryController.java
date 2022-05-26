@@ -12,19 +12,26 @@ import pedro.ieslaencanta.com.listados.model.Category;
 import pedro.ieslaencanta.com.listados.model.Principal;
 
 public class SecondaryController implements Initializable {
+
     private Category c;
     @FXML
     private TextField nombre;
     @FXML
     private Button enviar;
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
     @FXML
     private void actualizar(MouseEvent event) {
-        c.setName(nombre.getText());
+        if (c != null) {
+            c.setName(nombre.getText());
+        }else{
+            this.c=new Category();
+            this.c.setName(nombre.getText());
+            Principal.getInstance().addCategory(c);
+        }
     }
 
     public Category getC() {
@@ -36,9 +43,4 @@ public class SecondaryController implements Initializable {
         this.nombre.setText(this.c.getName());
     }
 
-
-   
-   
-
-    
 }

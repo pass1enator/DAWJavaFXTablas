@@ -10,6 +10,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 
 
 /**
@@ -18,13 +21,17 @@ import java.util.Optional;
  */
 public class Principal {
 
-    private HashMap<Integer, Category> categorias;
+   // private HashMap<Integer, Category> categorias;
+     private ObservableList<Category> categorias;
+
     private static Principal instance;
     static{
         instance=null;
     }
     private Principal() {
-        this.categorias = new HashMap<>();
+         this.categorias = FXCollections.observableArrayList();
+       
+       // this.categorias = new HashMap<>();
     }
     public static Principal getInstance(){
         if(instance==null){
@@ -66,58 +73,32 @@ public class Principal {
           
     }
 
-    public Collection<Category> getCategorys() {
-        return this.categorias.values();
+    public ObservableList<Category> getCategorys() {
+        return this.categorias;
     }
 
     public void addCategory(Category c) {
         if(c.getId()==-1)
             c.setId(this.getNextId());
-        this.categorias.put(c.getId(), c);
+        this.categorias.add( c);
     }
     public Category removeCategory(Category c){
         return this.categorias.remove(c.getId());
     }
-    public Category removeCategory(Integer id){
-        return this.categorias.remove(id);
+    public boolean removeCategory(Integer id){
+        return this.categorias.removeIf(e-> e.getId()==id);
     }
     public Category getCategory(Integer id) {
         return this.categorias.get(id);
     }
 
-    public Product getProduct(Integer categoryid, Integer productid) {
+   
 
-        if (this.categorias.containsKey(categoryid)) {
-            return this.categorias.get(categoryid).getProduct(Integer.SIZE);
-        } else {
-            return null;
-        }
-    }
+   
 
-    public void addProduct(Category c, Product p) throws Exception {
-        if (this.categorias.containsKey(c.getId())) {
-            this.categorias.get(c.getId()).addProduct(p);
-        } else {
-            throw new Exception("No existe esa categoria");
-        }
-    }
-
-    public void addProduct(Integer categoryid, Product p) throws Exception {
-        if (this.categorias.containsKey(categoryid)) {
-            this.categorias.get(categoryid).addProduct(p);
-        } else {
-            throw new Exception("No existe esa categoria");
-        }
-    }
-    public List<Product>getAllProducts(){
-        ArrayList<Product> p= new ArrayList<>();
-        this.categorias.values().stream().forEach(c->{
-            p.addAll(c.getProducts().values());
-        });
-        return p;
-    }  
+    
     private Integer getNextId(){
-       Optional<Category> o= this.categorias.values().stream().max(
+       Optional<Category> o= this.categorias.stream().max(
                (a,b)->{ 
                    return a.getId()-b.getId();
                    }

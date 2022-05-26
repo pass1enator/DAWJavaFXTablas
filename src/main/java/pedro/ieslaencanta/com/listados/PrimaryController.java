@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -24,7 +26,7 @@ import javafx.util.Callback;
 import pedro.ieslaencanta.com.listados.model.Category;
 import pedro.ieslaencanta.com.listados.model.Principal;
 
-public class PrimaryController implements Initializable {
+public class PrimaryController implements Initializable, ListChangeListener<Category> {
 
     @FXML
     private TableColumn<Category, Integer> c_id;
@@ -38,13 +40,28 @@ public class PrimaryController implements Initializable {
     private TableView<Category> tabla_categorias;
     @FXML
     private AnchorPane contenedor;
-    Principal p;
+    private Principal p;
+    private ObservableList<Category> categorias;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        p = Principal.getInstance();
+        this.p = Principal.getInstance();
 
-       //para que pinte el valor de tipo cadena
+        this.configTable();
+        this.initTable();
+    }
+
+    private void initTable() {
+        ArrayList categorias = new ArrayList(p.getCategorys());
+        this.categorias = FXCollections.observableArrayList(categorias);
+        this.tabla_categorias.setItems(p.getCategorys());
+        this.categorias.addListener(this);
+
+    }
+
+    private void configTable() {
+
+        //para que pinte el valor de tipo cadena
         this.c_nombre.setCellValueFactory(c -> {
             return new ObservableValueBase<String>() {
                 @Override
@@ -64,41 +81,42 @@ public class PrimaryController implements Initializable {
             };
         });
         //devuelve una celda personalizada
-        this.c_editar.setCellFactory(categorytablecell->{
-            return new TableCell<Category,Void>(){
-                 private final Button btn = new Button("Editar");
-                    //similar al constructor por defecto
-                    {
-                        btn.setOnAction((ActionEvent event) -> {
+        this.c_editar.setCellFactory(categorytablecell -> {
+            return new TableCell<Category, Void>() {
+                private final Button btn = new Button("Editar");
+                //similar al constructor por defecto
 
-                            contenedor.getChildren().clear();
-                            FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("secondary.fxml"));
-                            try {
-                                Parent t = fxmlLoader.load();
-                                SecondaryController sc = fxmlLoader.getController();
-                                sc.setC(getTableRow().getItem());
-                                System.out.println(t.getClass().toString());
-                                contenedor.getChildren().add(t);
+                {
+                    btn.setOnAction((ActionEvent event) -> {
 
-                            } catch (IOException ex) {
-                                ex.printStackTrace();
-                            }
-                        });
-                    }
-                    /*
-                    Se encarga de pintar el botón
-                    */
-                    @Override
-                    public void updateItem(Void item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            setGraphic(null);
-                        } else {
-                            setGraphic(btn);
+                        contenedor.getChildren().clear();
+                        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("secondary.fxml"));
+                        try {
+                            Parent t = fxmlLoader.load();
+                            SecondaryController sc = fxmlLoader.getController();
+                            sc.setC(getTableRow().getItem());
+                            contenedor.getChildren().add(t);
+
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
                         }
+                    });
+                }
+
+                /*
+                    Se encarga de pintar el botón
+                 */
+                @Override
+                public void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                    } else {
+                        setGraphic(btn);
                     }
+                }
             };
-            
+
         });
 
         this.c_borrar.setCellFactory((m) -> {
@@ -127,18 +145,30 @@ public class PrimaryController implements Initializable {
 
             };
         });
-        ArrayList categorias = new ArrayList(p.getCategorys());
-        this.tabla_categorias.setItems(FXCollections.observableArrayList(categorias));
+
     }
 
     @FXML
     private void listado(MouseEvent event) {
         this.contenedor.getChildren().clear();
-        ArrayList categorias = new ArrayList(p.getCategorys());
-        // this.tabla_categorias.getItems().clear();
-        this.tabla_categorias.setItems(FXCollections.observableArrayList(categorias));
         this.tabla_categorias.refresh();
         this.contenedor.getChildren().add(this.tabla_categorias);
+    }
+
+    @Override
+    public void onChanged(Change<? extends Category> change) {
+        this.tabla_categorias.refresh();
+    }
+
+    @FXML
+    private void nuevo(MouseEvent event) throws IOException {
+        contenedor.getChildren().clear();
+        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("secondary.fxml"));
+
+        Parent t = fxmlLoader.load();
+        SecondaryController sc = fxmlLoader.getController();
+
+        contenedor.getChildren().add(t);
     }
 
 }
