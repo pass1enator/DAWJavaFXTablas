@@ -52,11 +52,9 @@ public class PrimaryController implements Initializable, ListChangeListener<Cate
     }
 
     private void initTable() {
-        ArrayList categorias = new ArrayList(p.getCategorys());
-        this.categorias = FXCollections.observableArrayList(categorias);
-        this.tabla_categorias.setItems(p.getCategorys());
-        this.categorias.addListener(this);
-
+        this.tabla_categorias
+                .setItems(this.p.getCategorys());
+      
     }
 
     private void configTable() {
@@ -151,6 +149,7 @@ public class PrimaryController implements Initializable, ListChangeListener<Cate
     @FXML
     private void listado(MouseEvent event) {
         this.contenedor.getChildren().clear();
+       
         this.tabla_categorias.refresh();
         this.contenedor.getChildren().add(this.tabla_categorias);
     }

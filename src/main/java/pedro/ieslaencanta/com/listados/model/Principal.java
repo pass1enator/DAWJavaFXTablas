@@ -80,7 +80,8 @@ public class Principal {
     public void addCategory(Category c) {
         if(c.getId()==-1)
             c.setId(this.getNextId());
-        this.categorias.add( c);
+        this.categorias.add(c);
+        System.out.println(this.categorias.size());
     }
     public Category removeCategory(Category c){
         return this.categorias.remove(c.getId());
